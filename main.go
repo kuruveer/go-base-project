@@ -12,6 +12,8 @@ const flightTicketCount = 50
 var remainingTickets uint = 50
 var bookings = make([]UserData, 0)
 
+var wg = sync.WaitGroup{}
+
 type UserData struct {
 	firstName string
 	lastName string
@@ -34,6 +36,9 @@ func main(){
 
 			fmt.Printf("Passengers List %v\n", firstNames)
 
+      wg.Add(1)
+      go sendTicket(userTickets, firstName, lastName, email)
+  
 			if remainingTickets == 0 {
 				break
 			}
@@ -47,10 +52,9 @@ func main(){
 			if !isValidNumber {
 				fmt.Println("Inavlid number for tickets")
 			}
-
 		}
-
 	}
+  wg.Wait()
 }
 
 func greetingMessage(){
@@ -81,7 +85,6 @@ func getUserInputs() (string, string, string, uint){
 	fmt.Println("Enter number of tickets")
 	fmt.Scan(&numberOfTickets)
 
-
 	return firstName, lastName, email, numberOfTickets
 }
 
@@ -97,7 +100,6 @@ func bookTicket(firstName string, lastName string, email string , numberOfTicket
 
 	bookings = append(bookings, userData)
 
-	// fmt.Printf("Passengers List %v \n", bookings)
 	fmt.Printf("Thank you %v %v, for booking %v tickets in our flight %v \n", firstName, lastName, numberOfTickets, flightName)
 	fmt.Printf("%v tickets remaining of %v \n", remainingTickets, flightTicketCount)
 }
@@ -109,4 +111,13 @@ func getFirstName() []string {
 		firstNames = append(firstNames, booking.firstName)
 	}
 	return firstNames
+}
+
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	time.Sleep(50 * time.Second)
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("#################")
+	fmt.Printf("Sending ticket:\n %v \nto email address %v\n", ticket, email)
+	fmt.Println("#################")
+	wg.Done()
 }
